@@ -14,15 +14,10 @@ defmodule AcmeUdpLogger.MessageReceiver do
   def handle_info({:udp, socket, ip, port, data}, state) do
     IO.puts "Incoming data:"
     IO.inspect(data, limit: :infinity)
-    write_file(data)
-    message = parse_packet(data)
-    record_packet(message, data)
-    IO.inspect message
-    Logger.info "Received a message! " <> inspect(message)
 
-    #if message.message_type == 2 do
-    send_ack(socket, ip, port, message)
-    #end
+    #write_file(data)
+    message = parse_packet(data)
+    Logger.info "Received a message! " <> inspect(message)
 
     {:noreply, state}
   end
@@ -78,6 +73,114 @@ defmodule AcmeUdpLogger.MessageReceiver do
 
     #IO.inspect(Base.encode16(packet), limit: :infinity)
     :gen_udp.send(socket, ip, port, packet)
+  end
+
+  def parse_packet(<<
+      # map id 144
+      map_id                       :: unsigned-little-integer-size(8),
+      jpod_mach_state              :: unsigned-little-integer-size(16),
+      map_id_rev_con               :: unsigned-little-integer-size(8),
+      odometer_length              :: unsigned-little-integer-size(8),
+      odometer_1708                :: unsigned-little-integer-size(32),
+      odometer_1939                :: unsigned-little-integer-size(32),
+      odometer_hi_rez              :: unsigned-little-integer-size(32),
+      batt_volt_1708               :: unsigned-little-integer-size(16),
+      batt_volt_1939               :: unsigned-little-integer-size(16),
+      sw_batt_volt_1708            :: unsigned-little-integer-size(16),
+      sw_batt_volt_1939            :: unsigned-little-integer-size(16),
+      engine_speed_1708            :: unsigned-little-integer-size(16),
+      engine_speed_1939            :: unsigned-little-integer-size(16),
+      wheel_based_speed            :: unsigned-little-integer-size(8),
+      parking_brake                :: unsigned-little-integer-size(8),
+      brake_pedal_switch_1708      :: unsigned-little-integer-size(8),
+      cruze_control_spd            :: unsigned-little-integer-size(64),
+      eng_coolant_tmp_1708         :: unsigned-little-integer-size(8),
+      eng_coolant_tmp_1939         :: unsigned-little-integer-size(8),
+      eng_coolant_pres_1708        :: unsigned-little-integer-size(8),
+      eng_coolant_pres_1939        :: unsigned-little-integer-size(8),
+      eng_coolant_lvl_1708         :: unsigned-little-integer-size(8),
+      eng_coolant_lvl_1939         :: unsigned-little-integer-size(8),
+      eng_oil_tmp_1708             :: unsigned-little-integer-size(16),
+      eng_oil_tmp_1939             :: unsigned-little-integer-size(16),
+      eng_oil_pres_1708            :: unsigned-little-integer-size(8),
+      eng_oil_pres_1939            :: unsigned-little-integer-size(8),
+      eng_crank_pres_1708          :: unsigned-little-integer-size(8),
+      eng_crank_pres_1939          :: unsigned-little-integer-size(16),
+      eng_oil_lvl_1708             :: unsigned-little-integer-size(8),
+      eng_oil_lvl_1939             :: unsigned-little-integer-size(8),
+      eng_fuel_lvl_1_1708          :: unsigned-little-integer-size(8),
+      eng_fuel_lvl_1_1939          :: unsigned-little-integer-size(8),
+      eng_fuel_lvl_2_1708          :: unsigned-little-integer-size(8),
+      eng_fuel_lvl_2_1939          :: unsigned-little-integer-size(8),
+      seatbelt_switch              :: unsigned-little-integer-size(8),
+      eng_inst_fuel_econ_1708      :: unsigned-little-integer-size(16),
+      eng_inst_fuel_econ_1939      :: unsigned-little-integer-size(16),
+      eng_fuel_rate_1708           :: unsigned-little-integer-size(16),
+      eng_fuel_rate_1939           :: unsigned-little-integer-size(16),
+      hi_rez_eng_fuel_rate_1939    :: unsigned-little-integer-size(32),
+      transmission_gear_1939       :: unsigned-little-integer-size(8),
+      accel_pedal_position_1708    :: unsigned-little-integer-size(8),
+      accel_pedal_position_1939    :: unsigned-little-integer-size(8),
+      brake_pedal_position_1939    :: unsigned-little-integer-size(8),
+      turn_signal                  :: unsigned-little-integer-size(8),
+      transmission_curr_range_1939 :: unsigned-little-integer-size(16),
+      percent_eng_load_1939        :: unsigned-little-integer-size(8),
+      percent_eng_torque_1939      :: unsigned-little-integer-size(8),
+      def_tank_lvl_1939            :: unsigned-little-integer-size(8)
+      >>) do
+
+      %{
+       map_id: map_id,
+       jpod_mach_state: jpod_mach_state,
+       map_id_rev_con: map_id_rev_con,
+       odometer_length: odometer_length,
+       odometer_1708: odometer_1708,
+       odometer_1939: odometer_1939,
+       odometer_hi_rez: odometer_hi_rez,
+       batt_volt_1708: batt_volt_1708,
+       batt_volt_1939: batt_volt_1939,
+       sw_batt_volt_1708: sw_batt_volt_1708,
+       sw_batt_volt_1939: sw_batt_volt_1939,
+       engine_speed_1708: engine_speed_1708,
+       engine_speed_1939: engine_speed_1939,
+       wheel_based_speed: wheel_based_speed,
+       parking_brake: parking_brake,
+       brake_pedal_switch_1708: brake_pedal_switch_1708,
+       cruze_control_spd: cruze_control_spd,
+       eng_coolant_tmp_1708: eng_coolant_tmp_1708,
+       eng_coolant_tmp_1939: eng_coolant_tmp_1939,
+       eng_coolant_pres_1708: eng_coolant_pres_1708,
+       eng_coolant_pres_1939: eng_coolant_pres_1939,
+       eng_coolant_lvl_1708: eng_coolant_lvl_1708,
+       eng_coolant_lvl_1939: eng_coolant_lvl_1939,
+       eng_oil_tmp_1708: eng_oil_tmp_1708,
+       eng_oil_tmp_1939: eng_oil_tmp_1939,
+       eng_oil_pres_1708: eng_oil_pres_1708,
+       eng_oil_pres_1939: eng_oil_pres_1939,
+       eng_crank_pres_1708: eng_crank_pres_1708,
+       eng_crank_pres_1939: eng_crank_pres_1939,
+       eng_oil_lvl_1708: eng_oil_lvl_1708,
+       eng_oil_lvl_1939: eng_oil_lvl_1939,
+       eng_fuel_lvl_1_1708: eng_fuel_lvl_1_1708,
+       eng_fuel_lvl_1_1939: eng_fuel_lvl_1_1939,
+       eng_fuel_lvl_2_1708: eng_fuel_lvl_2_1708,
+       eng_fuel_lvl_2_1939: eng_fuel_lvl_2_1939,
+       seatbelt_switch: seatbelt_switch,
+       eng_inst_fuel_econ_1708: eng_inst_fuel_econ_1708,
+       eng_inst_fuel_econ_1939: eng_inst_fuel_econ_1939,
+       eng_fuel_rate_1708: eng_fuel_rate_1708,
+       eng_fuel_rate_1939: eng_fuel_rate_1939,
+       hi_rez_eng_fuel_rate_1939: hi_rez_eng_fuel_rate_1939,
+       transmission_gear_1939: transmission_gear_1939,
+       accel_pedal_position_1708: accel_pedal_position_1708,
+       accel_pedal_position_1939: accel_pedal_position_1939,
+       brake_pedal_position_1939: brake_pedal_position_1939,
+       turn_signal: turn_signal,
+       transmission_curr_range_1939: transmission_curr_range_1939,
+       percent_eng_load_1939: percent_eng_load_1939,
+       percent_eng_torque_1939: percent_eng_torque_1939,
+       def_tank_lvl_1939: def_tank_lvl_1939
+      }
   end
 
   def parse_packet(<<
@@ -157,6 +260,9 @@ defmodule AcmeUdpLogger.MessageReceiver do
       accums: accums,
       spare: spare
     }
+
+    #record_packet(message, data)
+    #send_ack(socket, ip, port, message)
   end
 
   def one_byte(number) do
