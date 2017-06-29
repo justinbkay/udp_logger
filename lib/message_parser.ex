@@ -8,12 +8,78 @@ defmodule AcmeUdpLogger.MessageParser do
   # API
 
   def parse_packet(server, bin, socket, ip, port) do
-    GenServer.call(server, {:parse_packet, bin, socket, ip, port})
+    GenServer.call(server, {:parse_header, bin, server, socket, ip, port})
   end
 
   # Callbacks
 
-  def handle_call({:parse_packet, <<
+  def handle_call({:parse_header, <<
+    options_byte          :: unsigned-integer-size(8),
+    mobile_id_length      :: unsigned-integer-size(8),
+    mobile_id             :: unsigned-integer-size(24),
+    mobile_id_type_length :: unsigned-integer-size(8),
+    mobile_id_type        :: unsigned-integer-size(8),
+    service_type          :: unsigned-integer-size(8),
+    message_type          :: unsigned-integer-size(8),
+    sequence              :: unsigned-integer-size(16),
+    update_time           :: unsigned-integer-size(32),
+    time_of_fix           :: unsigned-integer-size(32),
+    latitude              :: signed-integer-size(32),
+    longitude             :: signed-integer-size(32),
+    altitude              :: signed-integer-size(32),
+    speed                 :: unsigned-integer-size(32),
+    heading               :: unsigned-integer-size(16),
+    satellites            :: unsigned-integer-size(8),
+    fix_status            :: unsigned-integer-size(8),
+    carrier               :: unsigned-integer-size(16),
+    rssi                  :: signed-integer-size(16),
+    comm_state            :: unsigned-integer-size(8),
+    hdop                  :: unsigned-integer-size(8),
+    inputs                :: unsigned-integer-size(8),
+    unit_status           :: unsigned-integer-size(8),
+    event_index           :: unsigned-integer-size(8),
+    event_code            :: unsigned-integer-size(8),
+    accums                :: unsigned-integer-size(8),
+    spare                 :: unsigned-integer-size(8)
+    >>, _server, socket, ip, port}, _from, state) do
+
+    IO.puts "message type 2 parsed"
+    message = %{
+      options_byte: options_byte,
+      mobile_id_length: mobile_id_length,
+      mobile_id: mobile_id,
+      mobile_id_type_length: mobile_id_type_length,
+      mobile_id_type: mobile_id_type,
+      service_type: service_type,
+      message_type: message_type,
+      sequence: sequence,
+      update_time: update_time,
+      time_of_fix: time_of_fix,
+      latitude: latitude,
+      longitude: longitude,
+      altitude: altitude,
+      speed: speed,
+      heading: heading,
+      satellites: satellites,
+      fix_status: fix_status,
+      carrier: carrier,
+      rssi: rssi,
+      comm_state: comm_state,
+      hdop: hdop,
+      inputs: inputs,
+      unit_status: unit_status,
+      event_index: event_index,
+      event_code: event_code,
+      accums: accums,
+      spare: spare
+    }
+
+    #record_packet(message, data)
+    send_ack(socket, ip, port, message)
+    {:noreply, state}
+  end
+
+  def handle_call({:parse_header, <<
     options_byte                 :: unsigned-integer-size(8),
     mobile_id_length             :: unsigned-integer-size(8),
     mobile_id                    :: unsigned-integer-size(24),
@@ -39,6 +105,42 @@ defmodule AcmeUdpLogger.MessageParser do
     unit_status                  :: unsigned-integer-size(8),
     app_msg_type                 :: unsigned-integer-size(16),
     app_msg_len                  :: unsigned-integer-size(16),
+    body          		           :: binary
+    >> = _packet, server, socket, ip, port}, _from, state) do
+
+    header = %{
+      options_byte: options_byte,
+      mobile_id_length: mobile_id_length,
+      mobile_id: mobile_id,
+      mobile_id_type_length: mobile_id_type_length,
+      mobile_id_type: mobile_id_type,
+      service_type: service_type,
+      message_type: message_type,
+      sequence: sequence,
+      update_time: update_time,
+      time_of_fix: time_of_fix,
+      latitude: latitude,
+      longitude: longitude,
+      altitude: altitude,
+      speed: speed,
+      heading: heading,
+      satellites: satellites,
+      fix_status: fix_status,
+      carrier: carrier,
+      rssi: rssi,
+      comm_state: comm_state,
+      hdop: hdop,
+      inputs: inputs,
+      unit_status: unit_status,
+      app_msg_type: app_msg_type,
+      app_msg_len: app_msg_len
+    }
+
+    GenServer.call(server, {:parse_packet, body, header, socket, ip, port})
+    {:noreply, state}
+  end
+
+  def handle_call({:parse_packet, <<
     map_id                       :: unsigned-little-integer-size(8),
     jpod_mach_state              :: unsigned-little-integer-size(16),
     map_id_rev_con               :: unsigned-little-integer-size(8),
@@ -88,38 +190,12 @@ defmodule AcmeUdpLogger.MessageParser do
     transmission_curr_range_1939 :: unsigned-little-integer-size(16),
     percent_eng_load_1939        :: unsigned-little-integer-size(8),
     percent_eng_torque_1939      :: unsigned-little-integer-size(8),
-    def_tank_lvl_1939            :: unsigned-little-integer-size(8),
-    _rest		           :: binary
-    >> = _packet, socket, ip, port}, _from, state) do
+    def_tank_lvl_1939            :: unsigned-little-integer-size(8)
+    >> = _packet, header, socket, ip, port}, _from, state) do
 
     #IO.inspect(Base.encode16(packet), limit: :infinity)
     IO.puts "parsed 144"
     message = %{
-      options_byte: options_byte,
-      mobile_id_length: mobile_id_length,
-      mobile_id: mobile_id,
-      mobile_id_type_length: mobile_id_type_length,
-      mobile_id_type: mobile_id_type,
-      service_type: service_type,
-      message_type: message_type,
-      sequence: sequence,
-      update_time: update_time,
-      time_of_fix: time_of_fix,
-      latitude: latitude,
-      longitude: longitude,
-      altitude: altitude,
-      speed: speed,
-      heading: heading,
-      satellites: satellites,
-      fix_status: fix_status,
-      carrier: carrier,
-      rssi: rssi,
-      comm_state: comm_state,
-      hdop: hdop,
-      inputs: inputs,
-      unit_status: unit_status,
-      app_msg_type: app_msg_type,
-      app_msg_len: app_msg_len,
       map_id: map_id,
       jpod_mach_state: jpod_mach_state,
       map_id_rev_con: map_id_rev_con,
@@ -172,37 +248,12 @@ defmodule AcmeUdpLogger.MessageParser do
       def_tank_lvl_1939: def_tank_lvl_1939
     }
 
-    send_ack(socket, ip, port, message)
+    send_ack(socket, ip, port, header)
     {:noreply, state}
   end
 
 
   def handle_call({:parse_packet, <<
-    options_byte               :: unsigned-integer-size(8),
-    mobile_id_length           :: unsigned-integer-size(8),
-    mobile_id                  :: unsigned-integer-size(24),
-    mobile_id_type_length      :: unsigned-integer-size(8),
-    mobile_id_type             :: unsigned-integer-size(8),
-    service_type               :: unsigned-integer-size(8),
-    message_type               :: unsigned-integer-size(8),
-    sequence                   :: unsigned-integer-size(16),
-    update_time                :: unsigned-integer-size(32),
-    time_of_fix                :: unsigned-integer-size(32),
-    latitude                   :: signed-integer-size(32),
-    longitude                  :: signed-integer-size(32),
-    altitude                   :: signed-integer-size(32),
-    speed                      :: unsigned-integer-size(32),
-    heading                    :: unsigned-integer-size(16),
-    satellites                 :: unsigned-integer-size(8),
-    fix_status                 :: unsigned-integer-size(8),
-    carrier                    :: unsigned-integer-size(16),
-    rssi                       :: signed-integer-size(16),
-    comm_state                 :: unsigned-integer-size(8),
-    hdop                       :: unsigned-integer-size(8),
-    inputs                     :: unsigned-integer-size(8),
-    unit_status                :: unsigned-integer-size(8),
-    app_msg_type               :: unsigned-integer-size(16),
-    app_msg_len                :: unsigned-integer-size(16),
     map_id                     :: unsigned-little-integer-size(8),
     jpod_mach_state            :: unsigned-little-integer-size(16),
     map_id_rev_con             :: unsigned-little-integer-size(8),
@@ -213,35 +264,10 @@ defmodule AcmeUdpLogger.MessageParser do
     trip_fuel_consumption_1708 :: unsigned-little-integer-size(16),
     trip_fuel_consumption_1939 :: unsigned-little-integer-size(32),
     hi_rez_trip_fuel_1939      :: unsigned-little-integer-size(32)
-    >>, socket, ip, port}, _from, state) do
+    >>, header, socket, ip, port}, _from, state) do
 
     IO.puts "mapID 145 parsed"
     message = %{
-      options_byte: options_byte,
-      mobile_id_length: mobile_id_length,
-      mobile_id: mobile_id,
-      mobile_id_type_length: mobile_id_type_length,
-      mobile_id_type: mobile_id_type,
-      service_type: service_type,
-      message_type: message_type,
-      sequence: sequence,
-      update_time: update_time,
-      time_of_fix: time_of_fix,
-      latitude: latitude,
-      longitude: longitude,
-      altitude: altitude,
-      speed: speed,
-      heading: heading,
-      satellites: satellites,
-      fix_status: fix_status,
-      carrier: carrier,
-      rssi: rssi,
-      comm_state: comm_state,
-      hdop: hdop,
-      inputs: inputs,
-      unit_status: unit_status,
-      app_msg_type: app_msg_type,
-      app_msg_len: app_msg_len,
       map_id: map_id,
       jpod_mach_state: jpod_mach_state,
       map_id_rev_con: map_id_rev_con,
@@ -254,36 +280,11 @@ defmodule AcmeUdpLogger.MessageParser do
       hi_rez_trip_fuel_1939: hi_rez_trip_fuel_1939
     }
 
-    send_ack(socket, ip, port, message)
+    send_ack(socket, ip, port, header)
     {:noreply, state}
   end
 
   def handle_call({:parse_packet, <<
-    options_byte           :: unsigned-integer-size(8),
-    mobile_id_length       :: unsigned-integer-size(8),
-    mobile_id              :: unsigned-integer-size(24),
-    mobile_id_type_length  :: unsigned-integer-size(8),
-    mobile_id_type         :: unsigned-integer-size(8),
-    service_type           :: unsigned-integer-size(8),
-    message_type           :: unsigned-integer-size(8),
-    sequence               :: unsigned-integer-size(16),
-    update_time            :: unsigned-integer-size(32),
-    time_of_fix            :: unsigned-integer-size(32),
-    latitude               :: signed-integer-size(32),
-    longitude              :: signed-integer-size(32),
-    altitude               :: signed-integer-size(32),
-    speed                  :: unsigned-integer-size(32),
-    heading                :: unsigned-integer-size(16),
-    satellites             :: unsigned-integer-size(8),
-    fix_status             :: unsigned-integer-size(8),
-    carrier                :: unsigned-integer-size(16),
-    rssi                   :: signed-integer-size(16),
-    comm_state             :: unsigned-integer-size(8),
-    hdop                   :: unsigned-integer-size(8),
-    inputs                 :: unsigned-integer-size(8),
-    unit_status            :: unsigned-integer-size(8),
-    app_msg_type           :: unsigned-integer-size(16),
-    app_msg_len            :: unsigned-integer-size(16),
     map_id                 :: unsigned-little-integer-size(8),
     jpod_mach_state        :: unsigned-little-integer-size(16),
     map_id_rev_con         :: unsigned-little-integer-size(8),
@@ -303,35 +304,10 @@ defmodule AcmeUdpLogger.MessageParser do
     total_pto_hours_1939   :: unsigned-little-integer-size(32),
     eng_avg_fuel_eco_1708  :: unsigned-little-integer-size(16),
     eng_avg_fuel_eco_1939  :: unsigned-little-integer-size(16)
-    >>, socket, ip, port}, _from, state) do
+    >>, header, socket, ip, port}, _from, state) do
 
     IO.puts "mapID 146 parsed"
     message = %{
-      options_byte: options_byte,
-      mobile_id_length: mobile_id_length,
-      mobile_id: mobile_id,
-      mobile_id_type_length: mobile_id_type_length,
-      mobile_id_type: mobile_id_type,
-      service_type: service_type,
-      message_type: message_type,
-      sequence: sequence,
-      update_time: update_time,
-      time_of_fix: time_of_fix,
-      latitude: latitude,
-      longitude: longitude,
-      altitude: altitude,
-      speed: speed,
-      heading: heading,
-      satellites: satellites,
-      fix_status: fix_status,
-      carrier: carrier,
-      rssi: rssi,
-      comm_state: comm_state,
-      hdop: hdop,
-      inputs: inputs,
-      unit_status: unit_status,
-      app_msg_type: app_msg_type,
-      app_msg_len: app_msg_len,
       map_id: map_id,
       jpod_mach_state: jpod_mach_state,
       map_id_rev_con: map_id_rev_con,
@@ -353,71 +329,21 @@ defmodule AcmeUdpLogger.MessageParser do
       eng_avg_fuel_eco_1939: eng_avg_fuel_eco_1939
     }
 
-    send_ack(socket, ip, port, message)
+    send_ack(socket, ip, port, header)
     {:noreply, state}
   end
 
   def handle_call({:parse_packet, <<
-    options_byte          :: unsigned-integer-size(8),
-    mobile_id_length      :: unsigned-integer-size(8),
-    mobile_id             :: unsigned-integer-size(24),
-    mobile_id_type_length :: unsigned-integer-size(8),
-    mobile_id_type        :: unsigned-integer-size(8),
-    service_type          :: unsigned-integer-size(8),
-    message_type          :: unsigned-integer-size(8),
-    sequence              :: unsigned-integer-size(16),
-    update_time           :: unsigned-integer-size(32),
-    time_of_fix           :: unsigned-integer-size(32),
-    latitude              :: signed-integer-size(32),
-    longitude             :: signed-integer-size(32),
-    altitude              :: signed-integer-size(32),
-    speed                 :: unsigned-integer-size(32),
-    heading               :: unsigned-integer-size(16),
-    satellites            :: unsigned-integer-size(8),
-    fix_status            :: unsigned-integer-size(8),
-    carrier               :: unsigned-integer-size(16),
-    rssi                  :: signed-integer-size(16),
-    comm_state            :: unsigned-integer-size(8),
-    hdop                  :: unsigned-integer-size(8),
-    inputs                :: unsigned-integer-size(8),
-    unit_status           :: unsigned-integer-size(8),
-    app_msg_type          :: unsigned-integer-size(16),
-    app_msg_len           :: unsigned-integer-size(16),
     map_id                :: unsigned-little-integer-size(8),
     jpod_mach_state       :: unsigned-little-integer-size(16),
     map_id_rev_con        :: unsigned-little-integer-size(8),
-    _spare                 :: unsigned-little-integer-size(8),
+    _spare                :: unsigned-little-integer-size(8),
     vin_1708              :: bitstring-size(136),
     vin_indicator         :: unsigned-little-integer-size(8)
-    >>, socket, ip, port}, _from, state) do
+    >>, header, socket, ip, port}, _from, state) do
 
     IO.puts "mapID 148 parsed"
     message = %{
-      options_byte: options_byte,
-      mobile_id_length: mobile_id_length,
-      mobile_id: mobile_id,
-      mobile_id_type_length: mobile_id_type_length,
-      mobile_id_type: mobile_id_type,
-      service_type: service_type,
-      message_type: message_type,
-      sequence: sequence,
-      update_time: update_time,
-      time_of_fix: time_of_fix,
-      latitude: latitude,
-      longitude: longitude,
-      altitude: altitude,
-      speed: speed,
-      heading: heading,
-      satellites: satellites,
-      fix_status: fix_status,
-      carrier: carrier,
-      rssi: rssi,
-      comm_state: comm_state,
-      hdop: hdop,
-      inputs: inputs,
-      unit_status: unit_status,
-      app_msg_type: app_msg_type,
-      app_msg_len: app_msg_len,
       map_id: map_id,
       jpod_mach_state: jpod_mach_state,
       map_id_rev_con: map_id_rev_con,
@@ -426,75 +352,10 @@ defmodule AcmeUdpLogger.MessageParser do
     }
 
     #Logger.info "Received a message! " <> inspect(message, limit: :infinity)
-    send_ack(socket, ip, port, message)
+    send_ack(socket, ip, port, header)
     {:noreply, state}
   end
 
-  def handle_call({:parse_packet, <<
-    options_byte          :: unsigned-integer-size(8),
-    mobile_id_length      :: unsigned-integer-size(8),
-    mobile_id             :: unsigned-integer-size(24),
-    mobile_id_type_length :: unsigned-integer-size(8),
-    mobile_id_type        :: unsigned-integer-size(8),
-    service_type          :: unsigned-integer-size(8),
-    message_type          :: unsigned-integer-size(8),
-    sequence              :: unsigned-integer-size(16),
-    update_time           :: unsigned-integer-size(32),
-    time_of_fix           :: unsigned-integer-size(32),
-    latitude              :: signed-integer-size(32),
-    longitude             :: signed-integer-size(32),
-    altitude              :: signed-integer-size(32),
-    speed                 :: unsigned-integer-size(32),
-    heading               :: unsigned-integer-size(16),
-    satellites            :: unsigned-integer-size(8),
-    fix_status            :: unsigned-integer-size(8),
-    carrier               :: unsigned-integer-size(16),
-    rssi                  :: signed-integer-size(16),
-    comm_state            :: unsigned-integer-size(8),
-    hdop                  :: unsigned-integer-size(8),
-    inputs                :: unsigned-integer-size(8),
-    unit_status           :: unsigned-integer-size(8),
-    event_index           :: unsigned-integer-size(8),
-    event_code            :: unsigned-integer-size(8),
-    accums                :: unsigned-integer-size(8),
-    spare                 :: unsigned-integer-size(8)
-    >>, socket, ip, port}, _from, state) do
-
-    IO.puts "message type 2 parsed"
-    message = %{
-      options_byte: options_byte,
-      mobile_id_length: mobile_id_length,
-      mobile_id: mobile_id,
-      mobile_id_type_length: mobile_id_type_length,
-      mobile_id_type: mobile_id_type,
-      service_type: service_type,
-      message_type: message_type,
-      sequence: sequence,
-      update_time: update_time,
-      time_of_fix: time_of_fix,
-      latitude: latitude,
-      longitude: longitude,
-      altitude: altitude,
-      speed: speed,
-      heading: heading,
-      satellites: satellites,
-      fix_status: fix_status,
-      carrier: carrier,
-      rssi: rssi,
-      comm_state: comm_state,
-      hdop: hdop,
-      inputs: inputs,
-      unit_status: unit_status,
-      event_index: event_index,
-      event_code: event_code,
-      accums: accums,
-      spare: spare
-    }
-
-    #record_packet(message, data)
-    send_ack(socket, ip, port, message)
-    {:noreply, state}
-  end
 
   # Helper methods
   def send_ack(socket, ip, port, message) do
