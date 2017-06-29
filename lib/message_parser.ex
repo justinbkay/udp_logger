@@ -76,7 +76,7 @@ defmodule AcmeUdpLogger.MessageParser do
 
     #record_packet(message, data)
     send_ack(socket, ip, port, message)
-    {:noreply, state}
+    {:reply, message, state}
   end
 
   def handle_call({:parse_header, <<
@@ -249,7 +249,7 @@ defmodule AcmeUdpLogger.MessageParser do
     }
 
     send_ack(socket, ip, port, header)
-    {:noreply, state}
+    {:reply, message, state}
   end
 
 
@@ -281,7 +281,7 @@ defmodule AcmeUdpLogger.MessageParser do
     }
 
     send_ack(socket, ip, port, header)
-    {:noreply, state}
+    {:reply, message, state}
   end
 
   def handle_call({:parse_packet, <<
@@ -330,7 +330,7 @@ defmodule AcmeUdpLogger.MessageParser do
     }
 
     send_ack(socket, ip, port, header)
-    {:noreply, state}
+    {:reply, message, state}
   end
 
   def handle_call({:parse_packet, <<
@@ -353,7 +353,7 @@ defmodule AcmeUdpLogger.MessageParser do
 
     #Logger.info "Received a message! " <> inspect(message, limit: :infinity)
     send_ack(socket, ip, port, header)
-    {:noreply, state}
+    {:reply, message, state}
   end
 
 
