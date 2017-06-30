@@ -105,7 +105,7 @@ defmodule AcmeUdpLogger.MessageParser do
     unit_status                  :: unsigned-integer-size(8),
     app_msg_type                 :: unsigned-integer-size(16),
     app_msg_len                  :: unsigned-integer-size(16),
-    body          		           :: binary
+    body         	         :: binary
     >> = _packet, server, socket, ip, port}, _from, state) do
 
     header = %{
@@ -136,11 +136,12 @@ defmodule AcmeUdpLogger.MessageParser do
       app_msg_len: app_msg_len
     }
 
-    GenServer.call(server, {:parse_packet, body, header, socket, ip, port})
-    {:noreply, state}
+    GenServer.cast(self, {:parse_packet, body, header, socket, ip, port})
+    send_ack(socket, ip, port, header)
+    {:reply, header, state}
   end
 
-  def handle_call({:parse_packet, <<
+  def handle_cast({:parse_packet, <<
     map_id                       :: unsigned-little-integer-size(8),
     jpod_mach_state              :: unsigned-little-integer-size(16),
     map_id_rev_con               :: unsigned-little-integer-size(8),
@@ -191,9 +192,9 @@ defmodule AcmeUdpLogger.MessageParser do
     percent_eng_load_1939        :: unsigned-little-integer-size(8),
     percent_eng_torque_1939      :: unsigned-little-integer-size(8),
     def_tank_lvl_1939            :: unsigned-little-integer-size(8)
-    >> = _packet, header, socket, ip, port}, _from, state) do
+    >> = packet, header, socket, ip, port}, state) do
 
-    #IO.inspect(Base.encode16(packet), limit: :infinity)
+    IO.inspect(Base.encode16(packet), limit: :infinity)
     IO.puts "parsed 144"
     message = %{
       map_id: map_id,
@@ -248,12 +249,11 @@ defmodule AcmeUdpLogger.MessageParser do
       def_tank_lvl_1939: def_tank_lvl_1939
     }
 
-    send_ack(socket, ip, port, header)
-    {:reply, message, state}
+    {:noreply, state}
   end
 
 
-  def handle_call({:parse_packet, <<
+  def handle_cast({:parse_packet, <<
     map_id                     :: unsigned-little-integer-size(8),
     jpod_mach_state            :: unsigned-little-integer-size(16),
     map_id_rev_con             :: unsigned-little-integer-size(8),
@@ -264,7 +264,7 @@ defmodule AcmeUdpLogger.MessageParser do
     trip_fuel_consumption_1708 :: unsigned-little-integer-size(16),
     trip_fuel_consumption_1939 :: unsigned-little-integer-size(32),
     hi_rez_trip_fuel_1939      :: unsigned-little-integer-size(32)
-    >>, header, socket, ip, port}, _from, state) do
+    >>, header, socket, ip, port}, state) do
 
     IO.puts "mapID 145 parsed"
     message = %{
@@ -280,11 +280,11 @@ defmodule AcmeUdpLogger.MessageParser do
       hi_rez_trip_fuel_1939: hi_rez_trip_fuel_1939
     }
 
-    send_ack(socket, ip, port, header)
-    {:reply, message, state}
+    #send_ack(socket, ip, port, header)
+    {:noreply, state}
   end
 
-  def handle_call({:parse_packet, <<
+  def handle_cast({:parse_packet, <<
     map_id                 :: unsigned-little-integer-size(8),
     jpod_mach_state        :: unsigned-little-integer-size(16),
     map_id_rev_con         :: unsigned-little-integer-size(8),
@@ -304,7 +304,7 @@ defmodule AcmeUdpLogger.MessageParser do
     total_pto_hours_1939   :: unsigned-little-integer-size(32),
     eng_avg_fuel_eco_1708  :: unsigned-little-integer-size(16),
     eng_avg_fuel_eco_1939  :: unsigned-little-integer-size(16)
-    >>, header, socket, ip, port}, _from, state) do
+    >>, header, socket, ip, port}, state) do
 
     IO.puts "mapID 146 parsed"
     message = %{
@@ -329,18 +329,18 @@ defmodule AcmeUdpLogger.MessageParser do
       eng_avg_fuel_eco_1939: eng_avg_fuel_eco_1939
     }
 
-    send_ack(socket, ip, port, header)
-    {:reply, message, state}
+    #send_ack(socket, ip, port, header)
+    {:noreply, state}
   end
 
-  def handle_call({:parse_packet, <<
+  def handle_cast({:parse_packet, <<
     map_id                :: unsigned-little-integer-size(8),
     jpod_mach_state       :: unsigned-little-integer-size(16),
     map_id_rev_con        :: unsigned-little-integer-size(8),
     _spare                :: unsigned-little-integer-size(8),
     vin_1708              :: bitstring-size(136),
     vin_indicator         :: unsigned-little-integer-size(8)
-    >>, header, socket, ip, port}, _from, state) do
+    >>, header, socket, ip, port}, state) do
 
     IO.puts "mapID 148 parsed"
     message = %{
@@ -352,10 +352,34 @@ defmodule AcmeUdpLogger.MessageParser do
     }
 
     #Logger.info "Received a message! " <> inspect(message, limit: :infinity)
-    send_ack(socket, ip, port, header)
-    {:reply, message, state}
+    {:noreply, state}
   end
 
+  def handle_cast({:parse_packet, <<
+    <<151>>,
+    _rest    :: binary
+    >>, header, socket, ip, port}, state) do
+
+    IO.puts "mapID 151 parsed"
+    message = %{
+    }
+
+    #Logger.info "Received a message! " <> inspect(message, limit: :infinity)
+    {:noreply, state}
+  end
+
+  def handle_cast({:parse_packet, <<
+    <<152>>,
+    _rest    :: binary
+    >>, header, socket, ip, port}, state) do
+
+    IO.puts "mapID 152 parsed"
+    message = %{
+    }
+
+    #Logger.info "Received a message! " <> inspect(message, limit: :infinity)
+    {:noreply, state}
+  end
 
   # Helper methods
   def send_ack(socket, ip, port, message) do
@@ -372,7 +396,7 @@ defmodule AcmeUdpLogger.MessageParser do
     one_byte(0) <>
     three_bytes(0)
 
-    #IO.inspect(Base.encode16(packet), limit: :infinity)
+    IO.inspect(Base.encode16(packet), limit: :infinity)
     :gen_udp.send(socket, ip, port, packet)
   end
 
