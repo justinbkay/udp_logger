@@ -1,7 +1,13 @@
 defmodule AcmeUdpLogger.MessageReceiver do
   use GenServer
-  require Logger
+  #require Logger
   alias AcmeUdpLogger.MessageParser
+
+  @doc ~S"""
+  Collects incoming udp packets and sends them into a worker pool for parsing
+  and saving to a database
+
+  """
 
   def start_link(opts \\ []) do
     GenServer.start_link(__MODULE__, :ok, opts)
