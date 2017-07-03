@@ -8,7 +8,7 @@ defmodule AcmeUdpLogger.MessageParser do
   # API
 
   def parse_packet(server, bin, socket, ip, port) do
-    GenServer.call(server, {:parse_header, bin, server, socket, ip, port})
+    GenServer.call(server, {:parse_header, bin, socket, ip, port})
   end
 
   # Callbacks
@@ -41,7 +41,7 @@ defmodule AcmeUdpLogger.MessageParser do
     event_code            :: unsigned-integer-size(8),
     accums                :: unsigned-integer-size(8),
     spare                 :: unsigned-integer-size(8)
-    >>, _server, socket, ip, port}, _from, state) do
+    >>, socket, ip, port}, _from, state) do
 
     IO.puts "message type 2 parsed"
     message = %{
@@ -105,8 +105,8 @@ defmodule AcmeUdpLogger.MessageParser do
     unit_status                  :: unsigned-integer-size(8),
     app_msg_type                 :: unsigned-integer-size(16),
     app_msg_len                  :: unsigned-integer-size(16),
-    body         	         :: binary
-    >> = _packet, server, socket, ip, port}, _from, state) do
+    body         	               :: binary
+    >> = _packet, socket, ip, port}, _from, state) do
 
     header = %{
       options_byte: options_byte,
@@ -136,7 +136,7 @@ defmodule AcmeUdpLogger.MessageParser do
       app_msg_len: app_msg_len
     }
 
-    GenServer.cast(self, {:parse_packet, body, header, socket, ip, port})
+    GenServer.cast(self, {:parse_packet, body})
     send_ack(socket, ip, port, header)
     {:reply, header, state}
   end
@@ -192,11 +192,11 @@ defmodule AcmeUdpLogger.MessageParser do
     percent_eng_load_1939        :: unsigned-little-integer-size(8),
     percent_eng_torque_1939      :: unsigned-little-integer-size(8),
     def_tank_lvl_1939            :: unsigned-little-integer-size(8)
-    >> = packet, header, socket, ip, port}, state) do
+    >> = _packet}, state) do
 
-    IO.inspect(Base.encode16(packet), limit: :infinity)
+    #IO.inspect(Base.encode16(packet), limit: :infinity)
     IO.puts "parsed 144"
-    message = %{
+    _message = %{
       map_id: map_id,
       jpod_mach_state: jpod_mach_state,
       map_id_rev_con: map_id_rev_con,
@@ -264,10 +264,10 @@ defmodule AcmeUdpLogger.MessageParser do
     trip_fuel_consumption_1708 :: unsigned-little-integer-size(16),
     trip_fuel_consumption_1939 :: unsigned-little-integer-size(32),
     hi_rez_trip_fuel_1939      :: unsigned-little-integer-size(32)
-    >>, header, socket, ip, port}, state) do
+    >>}, state) do
 
     IO.puts "mapID 145 parsed"
-    message = %{
+    _message = %{
       map_id: map_id,
       jpod_mach_state: jpod_mach_state,
       map_id_rev_con: map_id_rev_con,
@@ -304,10 +304,10 @@ defmodule AcmeUdpLogger.MessageParser do
     total_pto_hours_1939   :: unsigned-little-integer-size(32),
     eng_avg_fuel_eco_1708  :: unsigned-little-integer-size(16),
     eng_avg_fuel_eco_1939  :: unsigned-little-integer-size(16)
-    >>, header, socket, ip, port}, state) do
+    >>}, state) do
 
     IO.puts "mapID 146 parsed"
-    message = %{
+    _message = %{
       map_id: map_id,
       jpod_mach_state: jpod_mach_state,
       map_id_rev_con: map_id_rev_con,
@@ -340,10 +340,10 @@ defmodule AcmeUdpLogger.MessageParser do
     _spare                :: unsigned-little-integer-size(8),
     vin_1708              :: bitstring-size(136),
     vin_indicator         :: unsigned-little-integer-size(8)
-    >>, header, socket, ip, port}, state) do
+    >>}, state) do
 
     IO.puts "mapID 148 parsed"
-    message = %{
+    _message = %{
       map_id: map_id,
       jpod_mach_state: jpod_mach_state,
       map_id_rev_con: map_id_rev_con,
@@ -358,10 +358,10 @@ defmodule AcmeUdpLogger.MessageParser do
   def handle_cast({:parse_packet, <<
     <<151>>,
     _rest    :: binary
-    >>, header, socket, ip, port}, state) do
+    >>}, state) do
 
     IO.puts "mapID 151 parsed"
-    message = %{
+    _message = %{
     }
 
     #Logger.info "Received a message! " <> inspect(message, limit: :infinity)
@@ -371,10 +371,10 @@ defmodule AcmeUdpLogger.MessageParser do
   def handle_cast({:parse_packet, <<
     <<152>>,
     _rest    :: binary
-    >>, header, socket, ip, port}, state) do
+    >>}, state) do
 
     IO.puts "mapID 152 parsed"
-    message = %{
+    _message = %{
     }
 
     #Logger.info "Received a message! " <> inspect(message, limit: :infinity)
