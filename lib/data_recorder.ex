@@ -1,6 +1,6 @@
 defmodule AcmeUdpLogger.DataRecorder do
 
-  def record_packet(message, data) do
+  def record_packet(2, message, data) do
     %AcmeUdpLogger.Packet1{raw_packet: data,
     service_type: message.service_type,
     message_type: message.message_type,
@@ -24,5 +24,5 @@ defmodule AcmeUdpLogger.DataRecorder do
     spare: message.spare,
     inserted_at: Ecto.DateTime.utc } |> AcmeUdpLogger.Repo.insert
   end
-  
+
 end

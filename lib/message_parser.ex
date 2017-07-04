@@ -1,11 +1,21 @@
 defmodule AcmeUdpLogger.MessageParser do
   use GenServer
 
+  @doc ~S"""
+  Receives udp packets and parses them for inserting into a database
+
+  """
+
   def start_link(_) do
     GenServer.start_link(__MODULE__, [], [])
   end
 
   # API
+  @doc ~S"""
+  The api call to parse the packets.  It invokes the parse header method with
+  the binary, socket, ip, and port
+
+  """
 
   def parse_packet(server, bin, socket, ip, port) do
     GenServer.call(server, {:parse_header, bin, socket, ip, port})
@@ -13,6 +23,10 @@ defmodule AcmeUdpLogger.MessageParser do
 
   # Callbacks
 
+  @doc ~S"""
+  This method parses the header and either finishes up on a message type 2
+  or calls other methods to parse the body of the other message types
+  """
   def handle_call({:parse_header, <<
     options_byte          :: unsigned-integer-size(8),
     mobile_id_length      :: unsigned-integer-size(8),
@@ -74,10 +88,16 @@ defmodule AcmeUdpLogger.MessageParser do
       spare: spare
     }
 
-    #record_packet(message, data)
+    record_packet(2, message, data)
     send_ack(socket, ip, port, message)
     {:reply, message, state}
   end
+
+  @doc ~S"""
+  This method parses the header and either finishes up on a message type 2
+  or calls other methods to parse the body of the other message types
+  parse_packet method parses all the message types that are not type 2
+  """
 
   def handle_call({:parse_header, <<
     options_byte                 :: unsigned-integer-size(8),
@@ -140,6 +160,11 @@ defmodule AcmeUdpLogger.MessageParser do
     send_ack(socket, ip, port, header)
     {:reply, header, state}
   end
+
+  @doc ~S"""
+  This method parses the body of the message for insertion into a database.
+  This is for message type 144
+  """
 
   def handle_cast({:parse_packet, <<
     map_id                       :: unsigned-little-integer-size(8),
@@ -252,6 +277,10 @@ defmodule AcmeUdpLogger.MessageParser do
     {:noreply, state}
   end
 
+  @doc ~S"""
+  This method parses the body of the message for insertion into a database.
+  This is for message type 145
+  """
 
   def handle_cast({:parse_packet, <<
     map_id                     :: unsigned-little-integer-size(8),
@@ -280,9 +309,13 @@ defmodule AcmeUdpLogger.MessageParser do
       hi_rez_trip_fuel_1939: hi_rez_trip_fuel_1939
     }
 
-    #send_ack(socket, ip, port, header)
     {:noreply, state}
   end
+
+  @doc ~S"""
+  This method parses the body of the message for insertion into a database.
+  This is for message type 146
+  """
 
   def handle_cast({:parse_packet, <<
     map_id                 :: unsigned-little-integer-size(8),
@@ -329,9 +362,13 @@ defmodule AcmeUdpLogger.MessageParser do
       eng_avg_fuel_eco_1939: eng_avg_fuel_eco_1939
     }
 
-    #send_ack(socket, ip, port, header)
     {:noreply, state}
   end
+
+  @doc ~S"""
+  This method parses the body of the message for insertion into a database.
+  This is for message type 148
+  """
 
   def handle_cast({:parse_packet, <<
     map_id                :: unsigned-little-integer-size(8),
@@ -355,6 +392,11 @@ defmodule AcmeUdpLogger.MessageParser do
     {:noreply, state}
   end
 
+  @doc ~S"""
+  This method parses the body of the message but doesn't do anything with it.
+  This is for message type 151
+  """
+
   def handle_cast({:parse_packet, <<
     <<151>>,
     _rest    :: binary
@@ -367,6 +409,11 @@ defmodule AcmeUdpLogger.MessageParser do
     #Logger.info "Received a message! " <> inspect(message, limit: :infinity)
     {:noreply, state}
   end
+
+  @doc ~S"""
+  This method parses the body of the message but doesn't do anything with it.
+  This is for message type 152
+  """
 
   def handle_cast({:parse_packet, <<
     <<152>>,
