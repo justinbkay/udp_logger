@@ -22,8 +22,6 @@ defmodule AcmeUdpLogger.MessageReceiver do
     #IO.puts "Incoming data:"
     #IO.inspect(data, limit: :infinity)
 
-    #AcmeUdpLogger.FileWriter.write_file(data)
-    #_message = MessageParser.parse_packet(data, socket, ip, port)
     # Logger.info "Received a message! " <> inspect(message, limit: :infinity)
    :poolboy.transaction(:message_parser_pool, fn(worker) ->
       MessageParser.parse_packet(worker, data, socket, ip, port)

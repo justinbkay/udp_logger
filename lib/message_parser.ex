@@ -156,8 +156,13 @@ defmodule AcmeUdpLogger.MessageParser do
       app_msg_len: app_msg_len
     }
 
-    GenServer.cast(self, {:parse_packet, body})
-    send_ack(socket, ip, port, header)
+    try do
+      GenServer.cast(self, {:parse_packet, body})
+      send_ack(socket, ip, port, header)
+    catch
+      :exit, _ -> AcmeUdpLogger.FileWriter.write_file(packet)
+    end
+
     {:reply, header, state}
   end
 
