@@ -30,7 +30,7 @@ defmodule AcmeUdpLogger.MessageParser do
   def handle_call({:parse_header, <<
     options_byte          :: unsigned-integer-size(8),
     mobile_id_length      :: unsigned-integer-size(8),
-    mobile_id             :: unsigned-integer-size(24),
+    mobile_id             :: bitstring-size(24),
     mobile_id_type_length :: unsigned-integer-size(8),
     mobile_id_type        :: unsigned-integer-size(8),
     service_type          :: unsigned-integer-size(8),
@@ -61,7 +61,7 @@ defmodule AcmeUdpLogger.MessageParser do
     message = %{
       options_byte: options_byte,
       mobile_id_length: mobile_id_length,
-      mobile_id: mobile_id,
+      mobile_id: Base.encode16(mobile_id),
       mobile_id_type_length: mobile_id_type_length,
       mobile_id_type: mobile_id_type,
       service_type: service_type,
@@ -88,7 +88,7 @@ defmodule AcmeUdpLogger.MessageParser do
       spare: spare
     }
 
-    record_packet(2, message, data)
+    #record_packet(2, message, data)
     send_ack(socket, ip, port, message)
     {:reply, message, state}
   end
@@ -102,7 +102,7 @@ defmodule AcmeUdpLogger.MessageParser do
   def handle_call({:parse_header, <<
     options_byte                 :: unsigned-integer-size(8),
     mobile_id_length             :: unsigned-integer-size(8),
-    mobile_id                    :: unsigned-integer-size(24),
+    mobile_id                    :: bitstring-size(24),
     mobile_id_type_length        :: unsigned-integer-size(8),
     mobile_id_type               :: unsigned-integer-size(8),
     service_type                 :: unsigned-integer-size(8),
@@ -126,12 +126,12 @@ defmodule AcmeUdpLogger.MessageParser do
     app_msg_type                 :: unsigned-integer-size(16),
     app_msg_len                  :: unsigned-integer-size(16),
     body         	               :: binary
-    >> = _packet, socket, ip, port}, _from, state) do
+    >> = packet, socket, ip, port}, _from, state) do
 
     header = %{
       options_byte: options_byte,
       mobile_id_length: mobile_id_length,
-      mobile_id: mobile_id,
+      mobile_id: Base.encode16(mobile_id),
       mobile_id_type_length: mobile_id_type_length,
       mobile_id_type: mobile_id_type,
       service_type: service_type,
@@ -437,7 +437,7 @@ defmodule AcmeUdpLogger.MessageParser do
   def send_ack(socket, ip, port, message) do
     packet = <<131>> <>
     one_byte(message.mobile_id_length) <>
-    three_bytes(message.mobile_id) <>
+    decode_hex(message.mobile_id) <>
     one_byte(message.mobile_id_type_length) <>
     one_byte(message.mobile_id_type) <>
     <<02>> <>
@@ -450,6 +450,11 @@ defmodule AcmeUdpLogger.MessageParser do
 
     IO.inspect(Base.encode16(packet), limit: :infinity)
     :gen_udp.send(socket, ip, port, packet)
+  end
+
+  def decode_hex(string) do
+    {:ok, binstring} = Base.decode16(string)
+    binstring
   end
 
   def one_byte(number) do
