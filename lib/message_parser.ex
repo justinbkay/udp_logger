@@ -397,7 +397,7 @@ defmodule AcmeUdpLogger.MessageParser do
       vin: vin_1708,
       vin_indicator: vin_indicator
     }
-_
+
     Logger.info inspect(message, limit: :infinity)
     {:noreply, state}
   end
