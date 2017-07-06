@@ -157,8 +157,8 @@ defmodule AcmeUdpLogger.MessageParser do
       app_msg_len: app_msg_len
     }
 
-    Logger.info "Received a message! " <> inspect(packet, limit: :infinity)
-    Logger.info "Received a message! " <> inspect(body, limit: :infinity)
+    Logger.info "Received a packet! " <> inspect(packet, limit: :infinity)
+    Logger.info "Received a body! " <> inspect(body, limit: :infinity)
 
     GenServer.cast(self(), {:parse_packet, body})
     send_ack(socket, ip, port, header)
