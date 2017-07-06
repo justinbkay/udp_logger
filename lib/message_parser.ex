@@ -156,9 +156,10 @@ defmodule AcmeUdpLogger.MessageParser do
       app_msg_len: app_msg_len
     }
 
-    AcmeUdpLogger.FileWriter.write_file(packet, header)
+    Logger.info "Received a message! " <> inspect(packet, limit: :infinity)
+    Logger.info "Received a message! " <> inspect(body, limit: :infinity)
 
-    GenServer.cast(self, {:parse_packet, body})
+    GenServer.cast(self(), {:parse_packet, body})
     send_ack(socket, ip, port, header)
 
     {:reply, header, state}
@@ -224,7 +225,7 @@ defmodule AcmeUdpLogger.MessageParser do
 
     #IO.inspect(Base.encode16(packet), limit: :infinity)
     IO.puts "parsed 144"
-    _message = %{
+    message = %{
       map_id: map_id,
       jpod_mach_state: jpod_mach_state,
       map_id_rev_con: map_id_rev_con,
@@ -276,6 +277,7 @@ defmodule AcmeUdpLogger.MessageParser do
       percent_eng_torque_1939: percent_eng_torque_1939,
       def_tank_lvl_1939: def_tank_lvl_1939
     }
+    Logger.info inspect(message, limit: :infinity)
 
     {:noreply, state}
   end
@@ -299,7 +301,7 @@ defmodule AcmeUdpLogger.MessageParser do
     >>}, state) do
 
     IO.puts "mapID 145 parsed"
-    _message = %{
+    message = %{
       map_id: map_id,
       jpod_mach_state: jpod_mach_state,
       map_id_rev_con: map_id_rev_con,
@@ -311,6 +313,8 @@ defmodule AcmeUdpLogger.MessageParser do
       trip_fuel_consumption_1939: trip_fuel_consumption_1939,
       hi_rez_trip_fuel_1939: hi_rez_trip_fuel_1939
     }
+
+    Logger.info inspect(message, limit: :infinity)
 
     {:noreply, state}
   end
@@ -343,7 +347,7 @@ defmodule AcmeUdpLogger.MessageParser do
     >>}, state) do
 
     IO.puts "mapID 146 parsed"
-    _message = %{
+    message = %{
       map_id: map_id,
       jpod_mach_state: jpod_mach_state,
       map_id_rev_con: map_id_rev_con,
@@ -365,6 +369,8 @@ defmodule AcmeUdpLogger.MessageParser do
       eng_avg_fuel_eco_1939: eng_avg_fuel_eco_1939
     }
 
+    Logger.info inspect(message, limit: :infinity)
+
     {:noreply, state}
   end
 
@@ -383,15 +389,15 @@ defmodule AcmeUdpLogger.MessageParser do
     >>}, state) do
 
     IO.puts "mapID 148 parsed"
-    _message = %{
+    message = %{
       map_id: map_id,
       jpod_mach_state: jpod_mach_state,
       map_id_rev_con: map_id_rev_con,
       vin: vin_1708,
       vin_indicator: vin_indicator
     }
-
-    #Logger.info "Received a message! " <> inspect(message, limit: :infinity)
+_
+    Logger.info inspect(message, limit: :infinity)
     {:noreply, state}
   end
 
@@ -406,10 +412,10 @@ defmodule AcmeUdpLogger.MessageParser do
     >>}, state) do
 
     IO.puts "mapID 151 parsed"
-    _message = %{
+    message = %{
     }
 
-    #Logger.info "Received a message! " <> inspect(message, limit: :infinity)
+    Logger.info inspect(message, limit: :infinity)
     {:noreply, state}
   end
 
@@ -424,10 +430,11 @@ defmodule AcmeUdpLogger.MessageParser do
     >>}, state) do
 
     IO.puts "mapID 152 parsed"
-    _message = %{
+    message = %{
     }
 
-    #Logger.info "Received a message! " <> inspect(message, limit: :infinity)
+    Logger.info inspect(message, limit: :infinity)
+
     {:noreply, state}
   end
 
@@ -446,7 +453,7 @@ defmodule AcmeUdpLogger.MessageParser do
     one_byte(0) <>
     three_bytes(0)
 
-    IO.inspect(Base.encode16(packet), limit: :infinity)
+    #IO.inspect(Base.encode16(packet), limit: :infinity)
     :gen_udp.send(socket, ip, port, packet)
   end
 

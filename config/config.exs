@@ -30,6 +30,7 @@ config :acme_udp_logger, AcmeUdpLogger.Repo,
 #
 #     config :logger, level: :info
 #
+config :logger, :error_log, path: 'logfile.txt'
 
 # It is also possible to import configuration files, relative to this
 # directory. For example, you can emulate configuration per environment
