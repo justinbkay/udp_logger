@@ -160,7 +160,6 @@ defmodule AcmeUdpLogger.MessageParser do
 
     GenServer.cast(self, {:parse_packet, body})
     send_ack(socket, ip, port, header)
-    end
 
     {:reply, header, state}
   end
