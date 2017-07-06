@@ -15,7 +15,7 @@ defmodule AcmeUdpLogger do
     children = [
       supervisor(AcmeUdpLogger.MessageReceiver, []),
       supervisor(AcmeUdpLogger.Repo, []),
-      :poolboy.child_spec(:message_parser_pool, poolboy_config, [])
+      :poolboy.child_spec(:message_parser_pool, poolboy_config(), [])
     ]
 
     opts = [strategy: :one_for_one, name: AcmeUdpLogger.Supervisor]
