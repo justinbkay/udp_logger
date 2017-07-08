@@ -439,6 +439,25 @@ defmodule AcmeUdpLogger.MessageParser do
     {:noreply, state}
   end
 
+  @doc ~S"""
+  This method parses the body of the message but doesn't do anything with it.
+  This is for erroneous message type 254
+  """
+
+  def handle_cast({:parse_packet, <<
+    <<254>>,
+    _rest    :: binary
+    >>}, state) do
+
+    IO.puts "mapID 254 parsed"
+    message = %{
+    }
+
+    Logger.info inspect(message, limit: :infinity)
+
+    {:noreply, state}
+  end
+
   # Helper methods
   def send_ack(socket, ip, port, message) do
     packet = <<131>> <>
