@@ -1,6 +1,7 @@
 defmodule AcmeUdpLogger.MessageParser do
   use GenServer
   require Logger
+  alias AcmeUdpLogger.DataRecorder
 
   @doc ~S"""
   Receives udp packets and parses them for inserting into a database
