@@ -5,8 +5,8 @@ defmodule AcmeUdpLogger.Packet1 do
     field :raw_packet, :binary
     field :service_type, :integer
     field :message_type, :integer
-    field :update_time, Ecto.DateTime,
-    field :time_of_fix, Ecto.DateTime, 
+    field :update_time, Ecto.DateTime
+    field :time_of_fix, Ecto.DateTime 
     field :latitude, :string
     field :longitude, :string
     field :altitude, :integer
