@@ -7,8 +7,8 @@ defmodule AcmeUdpLogger.Packet1 do
     field :message_type, :integer
     field :update_time, :integer
     field :time_of_fix, :integer
-    field :latitude, :integer
-    field :longitude, :integer
+    field :latitude, :string
+    field :longitude, :string
     field :altitude, :integer
     field :speed, :integer
     field :heading, :integer
@@ -29,4 +29,3 @@ defmodule AcmeUdpLogger.Packet1 do
     field :updated_at, Ecto.DateTime
   end
 end
-

@@ -56,7 +56,7 @@ defmodule AcmeUdpLogger.MessageParser do
     event_code            :: unsigned-integer-size(8),
     accums                :: unsigned-integer-size(8),
     spare                 :: unsigned-integer-size(8)
-    >>, socket, ip, port}, _from, state) do
+    >> = data, socket, ip, port}, _from, state) do
 
     IO.puts "message type 2 parsed"
     message = %{
@@ -89,7 +89,7 @@ defmodule AcmeUdpLogger.MessageParser do
       spare: spare
     }
 
-    #record_packet(2, message, data)
+    DataRecorder.record_packet(2, message, data)
     send_ack(socket, ip, port, message)
     {:reply, message, state}
   end
