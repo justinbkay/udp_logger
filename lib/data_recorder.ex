@@ -19,10 +19,30 @@ defmodule AcmeUdpLogger.DataRecorder do
     hdop: message.hdop,
     inputs: message.inputs,
     event_index: message.event_index,
-    event_code: message.event_code,
+    event_code: event_name(message.event_code),
     accums: message.accums,
     spare: message.spare,
     inserted_at: Ecto.DateTime.utc } |> AcmeUdpLogger.Repo.insert
   end
 
+  defp event_name(code) do
+    case code do
+      0 ->
+        "Power Up"
+      11 ->
+        "Ignition Switch On"
+      111 ->
+        "Engine On"
+      12 ->
+        "Ignition Switch Off"
+      112 ->
+        "Engine Off"
+      9 ->
+        "Time Distance Report (30 sec interval) between ignition on and off"
+      10 ->
+        "Time Distance Report (heading change) between ignition on and off"
+      17 ->
+        "Ignition Off (1 Hour report interval)"
+    end
+  end
 end

@@ -29,7 +29,7 @@ defmodule AcmeUdpLoggerTest do
   test "it should extract relevant data from UDP packet" do
   packet = @header <> @service_type <> @message_type <> @update_time <> @time_fix <> @latitude <> @longitude <> @altitude <> @speed <> @heading <> @satellites <> @fix_status <> @carrier <> @rssi <> @comm_state <> @hdop <> @inputs <> @unit_status <> @event_index <> @event_code <> @accums <> @spare <> @accum_list
 
-  message = AcmeUdpLogger.MessageReceiver.parse_packet(packet)
+  message = AcmeUdpLogger.MessageParser.parse_packet(packet)
   assert message
   assert message.update_time == 1337222280
   assert message.time_of_fix == 1337222280
