@@ -6,8 +6,8 @@ defmodule AcmeUdpLogger.Repo.Migrations.CreatePacket1 do
       add :raw_packet, :binary
       add :service_type, :integer
       add :message_type, :integer
-      add :update_time, Ecto.DateTime
-      add :time_of_fix, Ecto.DateTime
+      add :update_time, :datetime
+      add :time_of_fix, :datetime
       add :latitude, :string
       add :longitude, :string
       add :altitude, :integer
