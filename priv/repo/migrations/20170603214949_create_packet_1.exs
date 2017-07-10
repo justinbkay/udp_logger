@@ -3,7 +3,7 @@ defmodule AcmeUdpLogger.Repo.Migrations.CreatePacket1 do
 
   def change do
     create table(:packet1) do
-      add :raw_packet, :binary
+      add :mobile_id, :string
       add :service_type, :integer
       add :message_type, :integer
       add :update_time, :utc_datetime
