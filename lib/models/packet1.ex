@@ -2,7 +2,7 @@ defmodule AcmeUdpLogger.Packet1 do
   use Ecto.Schema
 
   schema "packet1" do
-    field :raw_packet, :binary
+    field :mobile_id, :string
     field :service_type, :integer
     field :message_type, :integer
     field :update_time, Ecto.DateTime
@@ -21,7 +21,7 @@ defmodule AcmeUdpLogger.Packet1 do
     field :inputs, :integer
     field :unit_status, :integer
     field :event_index, :integer
-    field :event_code, :integer
+    field :event_code, :string
     field :accums, :integer
     field :spare, :integer
     field :accum_list, :binary
