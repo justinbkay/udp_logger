@@ -4,8 +4,8 @@ defmodule AcmeUdpLogger.DataRecorder do
     %AcmeUdpLogger.Packet1{raw_packet: data,
     service_type: message.service_type,
     message_type: message.message_type,
-    update_time: DateTime.from_unix(message.update_time),
-    time_of_fix: DateTime.from_unix(message.time_of_fix),
+    update_time: convert_datetime(message.update_time),
+    time_of_fix: convert_datetime(message.time_of_fix),
     speed: message.speed,
     latitude: Float.to_string(message.latitude),
     longitude: Float.to_string(message.longitude),
@@ -24,7 +24,15 @@ defmodule AcmeUdpLogger.DataRecorder do
     spare: message.spare,
     inserted_at: Ecto.DateTime.utc } |> AcmeUdpLogger.Repo.insert
   end
-
+  
+  def convert_datetime(dt) do
+    {:ok, datetime} = DateTime.from_unix(dt)
+    datetime
+    |> DateTime.to_naive
+    |> NaiveDateTime.to_erl
+    |> Ecto.DateTime.from_erl
+  end
+  
   defp event_name(code) do
     case code do
       0 ->
