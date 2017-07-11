@@ -1,6 +1,6 @@
 defmodule AcmeUdpLogger.DataRecorder do
 
-  def record_packet(2, message, data) do
+  def record_packet(2, message, _data) do
     %AcmeUdpLogger.Packet1{mobile_id: message.mobile_id,
     service_type: message.service_type,
     message_type: message.message_type,
