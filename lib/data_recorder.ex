@@ -9,7 +9,7 @@ defmodule AcmeUdpLogger.DataRecorder do
     speed: message.speed,
     latitude: Float.to_string(message.latitude),
     longitude: Float.to_string(message.longitude),
-    altitude: message.altitude,
+    altitude: convert_centimeters_to_feet(message.altitude),
     heading: message.heading,
     satellites: message.satellites,
     fix_status: message.fix_status,
@@ -25,7 +25,11 @@ defmodule AcmeUdpLogger.DataRecorder do
     inserted_at: Ecto.DateTime.utc } |> AcmeUdpLogger.Repo.insert
   end
   
-  def convert_datetime(dt) do
+  defp convert_centimeters_to_feet(centimeters) do
+    centimeters / 30.48
+  end
+  
+  defp convert_datetime(dt) do
     {:ok, datetime} = DateTime.from_unix(dt)
     datetime
     |> DateTime.to_naive
