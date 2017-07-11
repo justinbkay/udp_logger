@@ -6,7 +6,7 @@ defmodule AcmeUdpLogger.DataRecorder do
     message_type: message.message_type,
     update_time: convert_datetime(message.update_time),
     time_of_fix: convert_datetime(message.time_of_fix),
-    speed: message.speed,
+    speed: convert_centimeters_to_miles(message.speed),
     latitude: Float.to_string(message.latitude),
     longitude: Float.to_string(message.longitude),
     altitude: convert_centimeters_to_feet(message.altitude),
@@ -23,6 +23,10 @@ defmodule AcmeUdpLogger.DataRecorder do
     accums: message.accums,
     spare: message.spare,
     inserted_at: Ecto.DateTime.utc } |> AcmeUdpLogger.Repo.insert
+  end
+  
+  defp convert_centimeters_to_miles(centimeters) do
+    centimeters * 0.0000062137
   end
   
   defp convert_centimeters_to_feet(centimeters) do
