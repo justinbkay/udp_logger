@@ -26,11 +26,11 @@ defmodule AcmeUdpLogger.DataRecorder do
   end
   
   defp convert_centimeters_to_miles(centimeters) do
-    centimeters * 0.0000062137
+    round(centimeters * 0.0000062137)
   end
   
   defp convert_centimeters_to_feet(centimeters) do
-    centimeters / 30.48
+    round(centimeters / 30.48)
   end
   
   defp convert_datetime(dt) do
