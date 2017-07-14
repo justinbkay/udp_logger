@@ -100,7 +100,7 @@ defmodule AcmeUdpLogger.DataRecorder do
       transmission_curr_range_1939: message.transmission_curr_range_1939,
       percent_eng_load_1939: message.percent_eng_load_1939,
       percent_eng_torque_1939: message.percent_eng_torque_1939,
-      def_tank_lvl_1939: message.def_tank_lvl_1939
+      def_tank_lvl_1939: message.def_tank_lvl_1939,
       inserted_at: Ecto.DateTime.utc } |> AcmeUdpLogger.Repo.insert
   end
 
