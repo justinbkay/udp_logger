@@ -1,6 +1,6 @@
 defmodule AcmeUdpLogger.DataRecorder do
 
-  def record_packet(2, message, _data) do
+  def record_packet(2, message) do
     %AcmeUdpLogger.Packet1{mobile_id: message.mobile_id,
     service_type: message.service_type,
     message_type: message.message_type,
@@ -24,15 +24,44 @@ defmodule AcmeUdpLogger.DataRecorder do
     spare: message.spare,
     inserted_at: Ecto.DateTime.utc } |> AcmeUdpLogger.Repo.insert
   end
-  
+
+  def record_packet(144, message, header) do
+    %AcmeUdpLogger.Packet144{
+      options_byte: header.options_byte,
+      mobile_id_length: header.mobile_id_length,
+      mobile_id: header.mobile_id,
+      mobile_id_type: header.mobile_id_type,
+      service_type: header.service_type,
+      message_type: header.message_type,
+      sequence: header.sequence,
+      update_time: header.update_time,
+      time_of_fix: header.time_of_fix,
+      latitude: header.latitude,
+      longitude: header.longitude,
+      altitude: header.altitude,
+      speed: header.speed,
+      heading: header.heading,
+      satellites: header.satellites,
+      fix_status: header.fix_status,
+      carrier: header.carrier,
+      rssi: header.rssi,
+      comm_state: header.comm_state,
+      hdop: header.hdop,
+      inputs: header.inputs,
+      unit_status: header.unit_status,
+      app_msg_type: header.app_msg_type,
+      app_msg_len: header.app_msg_len,
+      inserted_at: Ecto.DateTime.utc } |> AcmeUdpLogger.Repo.insert
+  end
+
   defp convert_centimeters_to_miles(centimeters) do
     round(centimeters * 0.0000062137)
   end
-  
+
   defp convert_centimeters_to_feet(centimeters) do
     round(centimeters / 30.48)
   end
-  
+
   defp convert_datetime(dt) do
     {:ok, datetime} = DateTime.from_unix(dt)
     datetime
@@ -40,7 +69,7 @@ defmodule AcmeUdpLogger.DataRecorder do
     |> NaiveDateTime.to_erl
     |> Ecto.DateTime.from_erl
   end
-  
+
   defp event_name(code) do
     case code do
       0 ->
