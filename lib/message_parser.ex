@@ -247,7 +247,7 @@ defmodule AcmeUdpLogger.MessageParser do
       cruze_control_spd: cruze_control_spd,
       eng_coolant_tmp_1708: eng_coolant_tmp_1708 - 32 * 5/9,
       eng_coolant_tmp_1939: eng_coolant_tmp_1939 - 40,
-      eng_coolant_pres_1708: eng_coolant_pres_1708,
+      eng_coolant_pres_1708: eng_coolant_pres_1708 / 1,
       eng_coolant_pres_1939: eng_coolant_pres_1939 * 2,
       eng_coolant_lvl_1708: eng_coolant_lvl_1708 * 0.50,
       eng_coolant_lvl_1939: eng_coolant_lvl_1939 * 0.40,
