@@ -248,7 +248,7 @@ defmodule AcmeUdpLogger.MessageParser do
       eng_coolant_tmp_1708: eng_coolant_tmp_1708 - 32 * 5/9,
       eng_coolant_tmp_1939: (eng_coolant_tmp_1939 - 40) / 1,
       eng_coolant_pres_1708: eng_coolant_pres_1708 / 1,
-      eng_coolant_pres_1939: eng_coolant_pres_1939 * 2,
+      eng_coolant_pres_1939: (eng_coolant_pres_1939 * 2) / 1,
       eng_coolant_lvl_1708: eng_coolant_lvl_1708 * 0.50,
       eng_coolant_lvl_1939: eng_coolant_lvl_1939 * 0.40,
       eng_oil_tmp_1708: (eng_oil_tmp_1708 * 0.25) - (32 * 5/9),
