@@ -38,7 +38,7 @@ defmodule AcmeUdpLogger.DataRecorder do
       time_of_fix: convert_datetime(header.time_of_fix),
       latitude: Float.to_string(header.latitude),
       longitude: Float.to_string(header.longitude),
-      altitude: header.altitude,
+      altitude: convert_centimeters_to_feet(header.altitude),
       speed: header.speed,
       heading: header.heading,
       satellites: header.satellites,
