@@ -246,7 +246,7 @@ defmodule AcmeUdpLogger.MessageParser do
       brake_pedal_switch_1708: brake_pedal_switch_1708,
       cruze_control_spd: cruze_control_spd,
       eng_coolant_tmp_1708: eng_coolant_tmp_1708 - 32 * 5/9,
-      eng_coolant_tmp_1939: eng_coolant_tmp_1939 - 40,
+      eng_coolant_tmp_1939: (eng_coolant_tmp_1939 - 40) / 1,
       eng_coolant_pres_1708: eng_coolant_pres_1708 / 1,
       eng_coolant_pres_1939: eng_coolant_pres_1939 * 2,
       eng_coolant_lvl_1708: eng_coolant_lvl_1708 * 0.50,
