@@ -275,7 +275,7 @@ defmodule AcmeUdpLogger.MessageParser do
       brake_pedal_position_1939: brake_pedal_position_1939 * 0.4,
       turn_signal: turn_signal,
       transmission_curr_range_1939: transmission_curr_range_1939,
-      percent_eng_load_1939: percent_eng_load_1939,
+      percent_eng_load_1939: percent_eng_load_1939 / 1,
       percent_eng_torque_1939: percent_eng_torque_1939 / 1,
       def_tank_lvl_1939: def_tank_lvl_1939 / 1
     }
