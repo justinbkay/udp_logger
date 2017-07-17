@@ -254,7 +254,7 @@ defmodule AcmeUdpLogger.MessageParser do
       eng_oil_tmp_1708: (eng_oil_tmp_1708 * 0.25) - (32 * 5/9),
       eng_oil_tmp_1939: eng_oil_tmp_1939 * 0.03125 - 273,
       eng_oil_pres_1708: eng_oil_pres_1708 * 3.45,
-      eng_oil_pres_1939: eng_oil_pres_1939 * 4,
+      eng_oil_pres_1939: eng_oil_pres_1939 * 4 / 1,
       eng_crank_pres_1708: eng_crank_pres_1708 * 0.862,
       eng_crank_pres_1939: eng_crank_pres_1939 * 1/128 - 250,
       eng_oil_lvl_1708: eng_oil_lvl_1708 * 0.50,
