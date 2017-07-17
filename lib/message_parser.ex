@@ -277,7 +277,7 @@ defmodule AcmeUdpLogger.MessageParser do
       transmission_curr_range_1939: transmission_curr_range_1939,
       percent_eng_load_1939: percent_eng_load_1939,
       percent_eng_torque_1939: percent_eng_torque_1939,
-      def_tank_lvl_1939: def_tank_lvl_1939
+      def_tank_lvl_1939: def_tank_lvl_1939 / 1
     }
     Logger.info inspect(message, limit: :infinity)
     DataRecorder.record_packet(144, message, header)
