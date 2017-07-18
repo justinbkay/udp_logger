@@ -77,6 +77,7 @@ defmodule AcmeUdpLogger.Packet144 do
     field :percent_eng_load_1939, :float
     field :percent_eng_torque_1939, :float
     field :def_tank_lvl_1939, :float
+    field :raw_packet, :string
     field :inserted_at, Ecto.DateTime
     field :updated_at, Ecto.DateTime
   end

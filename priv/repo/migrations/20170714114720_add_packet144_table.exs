@@ -78,6 +78,7 @@ defmodule AcmeUdpLogger.Repo.Migrations.AddPacket144Table do
       add :percent_eng_load_1939, :float
       add :percent_eng_torque_1939, :float
       add :def_tank_lvl_1939, :float
+      add :raw_packet, :string
       timestamps
     end
   end

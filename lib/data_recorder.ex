@@ -25,7 +25,7 @@ defmodule AcmeUdpLogger.DataRecorder do
     inserted_at: Ecto.DateTime.utc } |> AcmeUdpLogger.Repo.insert
   end
 
-  def record_packet(144, message, header) do
+  def record_packet(144, message, header, packet) do
     %AcmeUdpLogger.Packet144{
       options_byte: header.options_byte,
       mobile_id_length: header.mobile_id_length,
@@ -101,6 +101,7 @@ defmodule AcmeUdpLogger.DataRecorder do
       percent_eng_load_1939: message.percent_eng_load_1939,
       percent_eng_torque_1939: message.percent_eng_torque_1939,
       def_tank_lvl_1939: message.def_tank_lvl_1939,
+      raw_packet: packet,
       inserted_at: Ecto.DateTime.utc } |> AcmeUdpLogger.Repo.insert
   end
 

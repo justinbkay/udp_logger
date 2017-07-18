@@ -225,7 +225,8 @@ defmodule AcmeUdpLogger.MessageParser do
     def_tank_lvl_1939            :: unsigned-little-integer-size(8)
     >> = packet, header}, state) do
 
-    IO.inspect(Base.encode16(packet), limit: :infinity)
+    encoded_packet = Base.encode16(packet)
+    IO.inspect(encoded_packet, limit: :infinity)
     IO.puts "parsed 144"
     message = %{
       map_id: map_id,
@@ -280,7 +281,7 @@ defmodule AcmeUdpLogger.MessageParser do
       def_tank_lvl_1939: def_tank_lvl_1939 / 1
     }
     Logger.info inspect(message, limit: :infinity)
-    DataRecorder.record_packet(144, message, header)
+    DataRecorder.record_packet(144, message, header, encoded_packet)
 
     {:noreply, state}
   end
